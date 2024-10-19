@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -19,5 +20,13 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        if (app()->environment('local')) {
+            \App\Models\Author::factory(15)->create();
+            \App\Models\Category::factory(15)->create();
+            \App\Models\Book::factory(25)->create();
+            \App\Models\Member::factory(15)->create();
+            \App\Models\BorrowRecord::factory(15)->create();
+        }
     }
 }

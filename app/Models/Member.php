@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Author extends Model
+class Member extends Model
 {
     use HasFactory;
 
@@ -16,9 +17,10 @@ class Author extends Model
      * @var array
      */
     protected $fillable = [
-        'avatar',
-        'name',
-        'bio',
+        'phone',
+        'address',
+        'membership_date',
+        'user_id',
     ];
 
     /**
@@ -28,10 +30,17 @@ class Author extends Model
      */
     protected $casts = [
         'id' => 'integer',
+        'membership_date' => 'date',
+        'user_id' => 'integer',
     ];
 
-    public function books(): HasMany
+    public function borrowRecords(): HasMany
     {
-        return $this->hasMany(Book::class);
+        return $this->hasMany(BorrowRecord::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

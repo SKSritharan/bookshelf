@@ -24,9 +24,11 @@ class CategoryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->label('Name')
+                    ->label(__('Name'))
                     ->required(),
-            ]);
+                Forms\Components\Textarea::make('category')
+                    ->label(__('Category')),
+            ])->columns(null);
     }
 
     public static function table(Table $table): Table
@@ -34,7 +36,7 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
+                    ->label(__('Name'))
                     ->searchable()
                     ->sortable(),
             ])

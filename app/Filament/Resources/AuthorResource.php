@@ -8,8 +8,10 @@ use App\Models\Author;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -17,7 +19,7 @@ class AuthorResource extends Resource
 {
     protected static ?string $model = Author::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     public static function form(Form $form): Form
     {
@@ -25,12 +27,12 @@ class AuthorResource extends Resource
             ->schema([
                 Forms\Components\FileUpload::make('avatar')
                     ->avatar()
-                    ->label('Avatar'),
+                    ->label(__('Avatar')),
                 Forms\Components\TextInput::make('name')
-                    ->label('Name')
+                    ->label(__('Name'))
                     ->required(),
                 Forms\Components\Textarea::make('bio')
-                    ->label('Bio'),
+                    ->label(__('Bio')),
             ])->columns(null);
     }
 
@@ -38,18 +40,34 @@ class AuthorResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('avatar')
-                    ->label('Avatar'),
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\Layout\Stack::make([
+                    Tables\Columns\ImageColumn::make('avatar')
+                        ->label(__('Avatar'))
+                        ->alignCenter()
+                        ->height('75%')
+                        ->width('75%'),
+                    Tables\Columns\Layout\Stack::make([
+                        Tables\Columns\TextColumn::make('name')
+                            ->label(__('Name'))
+                            ->weight(FontWeight::Bold)
+                            ->searchable()
+                            ->sortable(),
+                        Tables\Columns\TextColumn::make('bio')
+                            ->label(__('Bio'))
+                            ->formatStateUsing(
+                                fn(string $state): string => str($state)->words(5)
+                            ),
+                    ])
+                ])->space(3)
             ])
             ->filters([
                 //
             ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
             ->actions([
-                Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

@@ -4,16 +4,17 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use App\Models\Author;
+use App\Models\Member;
+use App\Models\User;
 
-class AuthorFactory extends Factory
+class MemberFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Author::class;
+    protected $model = Member::class;
 
     /**
      * Define the model's default state.
@@ -21,9 +22,10 @@ class AuthorFactory extends Factory
     public function definition(): array
     {
         return [
-            'avatar' => 'user-avatar-placeholder.png',
-            'name' => $this->faker->name(),
-            'bio' => $this->faker->text(),
+            'phone' => $this->faker->phoneNumber(),
+            'address' => $this->faker->text(),
+            'membership_date' => $this->faker->date(),
+            'user_id' => User::factory(),
         ];
     }
 }
