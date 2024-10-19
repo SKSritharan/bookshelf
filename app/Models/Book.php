@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Enums\Language;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Tags\HasTags;
 
 class Book extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTags;
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +21,12 @@ class Book extends Model
     protected $fillable = [
         'title',
         'isbn',
+        'isbn13',
         'description',
+        'cover',
+        'language',
+        'available_copies',
+        'total_copies',
         'author_id',
         'category_id',
     ];
@@ -32,6 +40,7 @@ class Book extends Model
         'id' => 'integer',
         'author_id' => 'integer',
         'category_id' => 'integer',
+        'language' => Language::class,
     ];
 
     public function author(): BelongsTo
@@ -42,5 +51,10 @@ class Book extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function borrowRecords(): HasMany
+    {
+        return $this->hasMany(BorrowRecord::class);
     }
 }
