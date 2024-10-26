@@ -35,19 +35,20 @@ jobs:
       run: php artisan test
 
   deploy:
-    needs: laravel-tests  # Ensure tests pass before deploying
+    needs: laravel-tests
     runs-on: ubuntu-latest
 
     steps:
     - name: Deploy to server
-      uses: appleboy/ssh-action@v0.1.6
+      uses: appleboy/ssh-action@v1.1.0
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd ${{secrets.WORK_DR}}
+          whoami
+          cd /var/www/bookshelf.sritharansk.com
           git pull origin main
-          composer install --no-interaction --prefer-dist --optimize-autoloader
-          php artisan migrate --force
+          composer install
+          php artisan migrate:fresh --seed
           php artisan optimize:clear
