@@ -16,8 +16,10 @@ The app includes the following entities:
 
 ## Installation
 
-* Checkout the code
-* Run: `composer install`
-* Configure .env to setup a db connection
+* Checkout the code: `git clone git@github.com:SKSritharan/bookshelf.git`
+* Install dependencies: `composer install` and `npm install`
+* Configure .env: `cp cp .env.example .env`
+* `php arisan key:generate`
 * `php artisan migrate`
+* `php artisan serve`
   
