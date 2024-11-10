@@ -6,11 +6,13 @@ use App\Filament\Resources\MemberResource\Pages;
 use App\Filament\Resources\MemberResource\RelationManagers;
 use App\Models\Member;
 use App\Models\User;
+use App\Notifications\UserVerified;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
@@ -77,6 +79,23 @@ class MemberResource extends Resource
                 Tables\Columns\TextColumn::make('member.membership_date')
                     ->label(__('Membership Date'))
                     ->sortable(),
+                Tables\Columns\ToggleColumn::make('approved_at')
+                    ->label(__('Approved'))
+                    ->updateStateUsing(function (User $record) {
+                        if ($record->approved_at) {
+                            $record->approved_at = null;
+                            $record->approved_by = null;
+                            $record->save();
+                        }else{
+                            $record->approved_at = now();
+                            $record->approved_by = auth()->id();
+                            $record->save();
+
+                            $record->notify(new UserVerified($record));
+                        }
+                    }),
+                Tables\Columns\TextColumn::make('approvedByUser.name')
+                    ->label(__('Approved By')),
             ])
             ->filters([
                 //
@@ -89,6 +108,13 @@ class MemberResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->whereHas('roles', function ($query) {
+            $query->where('name', 'member');
+        });
     }
 
     public static function getRelations(): array
