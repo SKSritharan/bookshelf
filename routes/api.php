@@ -8,5 +8,13 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::apiResource('books', API\BookController::class);
+Route::prefix('books')->group(function () {
+    Route::get('/', [API\BookController::class, 'index']);
+    Route::post('/', [API\BookController::class, 'store']);
+    Route::get('/{id}', [API\BookController::class, 'show']);
+    Route::put('/{id}', [API\BookController::class, 'update']);
+    Route::delete('/{id}', [API\BookController::class, 'destroy']);
+    Route::post('/search', [API\BookController::class, 'search']);
+});
+
 Route::apiResource('authors', API\AuthorController::class);
