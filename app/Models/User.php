@@ -52,6 +52,11 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    public function approvedBy(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'approved_by');
+    }
+
     public function member(): HasOne
     {
         return $this->hasOne(Member::class);
