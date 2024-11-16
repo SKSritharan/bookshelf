@@ -1,16 +1,18 @@
 <?php
 
+use App\Filament\Clusters\UserManagement;
+
 return [
     'shield_resource' => [
         'should_register_navigation' => true,
         'slug' => 'roles',
         'navigation_sort' => -1,
-        'navigation_badge' => true,
-        'navigation_group' => true,
+        'navigation_badge' => false,
+        'navigation_group' => false,
         'is_globally_searchable' => false,
         'show_model_path' => true,
         'is_scoped_to_tenant' => true,
-        'cluster' => null,
+        'cluster' => UserManagement::class,
     ],
 
     'tenant_model' => null,

@@ -12,8 +12,6 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BookResource extends Resource
 {
@@ -111,9 +109,7 @@ class BookResource extends Resource
                             ->sortable(),
                         Tables\Columns\TextColumn::make('description')
                             ->label(__('Description'))
-                            ->formatStateUsing(
-                                fn(string $state): string => str($state)->words(5)
-                            ),
+                            ->words(10),
                     ])
                 ])->space(3),
             ])

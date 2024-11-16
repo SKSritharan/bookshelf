@@ -79,23 +79,6 @@ class MemberResource extends Resource
                 Tables\Columns\TextColumn::make('member.membership_date')
                     ->label(__('Membership Date'))
                     ->sortable(),
-                Tables\Columns\ToggleColumn::make('approved_at')
-                    ->label(__('Approved'))
-                    ->updateStateUsing(function (User $record) {
-                        if ($record->approved_at) {
-                            $record->approved_at = null;
-                            $record->approved_by = null;
-                            $record->save();
-                        }else{
-                            $record->approved_at = now();
-                            $record->approved_by = auth()->id();
-                            $record->save();
-
-                            $record->notify(new UserVerified($record));
-                        }
-                    }),
-                Tables\Columns\TextColumn::make('approvedByUser.name')
-                    ->label(__('Approved By')),
             ])
             ->filters([
                 //

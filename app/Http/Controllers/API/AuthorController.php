@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Author\StoreAuthorRequest;
+use App\Http\Requests\Author\UpdateAuthorRequest;
 use App\Http\Resources\AuthorResource;
 use App\Models\Author;
 use Illuminate\Http\Request;
@@ -20,9 +22,14 @@ class AuthorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAuthorRequest $request)
     {
-        //
+        try {
+            $author = Author::create($request->validated());
+            return $this->responseWithSuccess('Author created successfully', new AuthorResource($author));
+        } catch (\Exception $e) {
+            return $this->responseWithError($e->getMessage());
+        }
     }
 
     /**
@@ -30,15 +37,26 @@ class AuthorController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $author = Author::findOrFail($id);
+            return new AuthorResource($author);
+        } catch (\Exception $e) {
+            return $this->responseWithError($e->getMessage());
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateAuthorRequest $request, string $id)
     {
-        //
+        try {
+            $author = Author::findOrFail($id);
+            $author->update($request->validated());
+            return $this->responseWithSuccess('Author updated successfully', new AuthorResource($author));
+        } catch (\Exception $e) {
+            return $this->responseWithError($e->getMessage());
+        }
     }
 
     /**
@@ -46,6 +64,21 @@ class AuthorController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $author = Author::findOrFail($id);
+            $author->delete();
+            return $this->responseWithSuccess('Author deleted successfully');
+        } catch (\Exception $e) {
+            return $this->responseWithError($e->getMessage());
+        }
+    }
+
+    /**
+     * Search for authors.
+     */
+    public function search(Request $request)
+    {
+        $authors = Author::where('name', 'like', "%{$request->name}%")->get();
+        return AuthorResource::collection($authors);
     }
 }
