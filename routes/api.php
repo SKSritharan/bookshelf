@@ -18,11 +18,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [API\BookController::class, 'destroy']);
     });
 
-    Route::apiResource('authors', API\AuthorController::class);
+    Route::prefix('authors')->group(function (){
+        Route::post('/', [API\AuthorController::class, 'store']);
+        Route::put('/{id}', [API\AuthorController::class, 'update']);
+        Route::delete('/{id}', [API\AuthorController::class, 'destroy']);
+    });
 });
 
 Route::prefix('books')->group(function () {
     Route::get('/', [API\BookController::class, 'index']);
     Route::get('/{id}', [API\BookController::class, 'show']);
     Route::post('/search', [API\BookController::class, 'search']);
+});
+
+Route::prefix('authors')->group(function () {
+    Route::get('/', [API\AuthorController::class, 'index']);
+    Route::get('/{id}', [API\AuthorController::class, 'show']);
+    Route::post('/search', [API\AuthorController::class, 'search']);
 });
