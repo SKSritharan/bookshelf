@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages\Auth;
 
+use App\Helpers\NewUserRegistrationNotify;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Auth\Register as BaseRegister;
@@ -17,25 +18,8 @@ class Register extends BaseRegister
 //        ]);
 //
 //        $user->assignRole('member');
-
-        $superAdmins = $this->getUserModel()::whereHas('roles', function ($query) {
-            $query->where('name', 'super_admin');
-        })->get();
-
-        foreach ($superAdmins as $superAdmin) {
-            $superAdmin->notify(
-                Notification::make()
-                    ->title('New User Registration')
-                    ->body($user->name.' has registered')
-                    ->actions([
-                        Action::make('View User')
-                            ->button()
-                            ->url(route('filament.resources.users.edit', $user))
-                            ->markAsRead(),
-                    ])
-                    ->toDatabase()
-            );
-        }
+        $newUserRegisterNotify = new NewUserRegistrationNotify();
+        $newUserRegisterNotify->sendNotification($user);
 
         return $user;
     }

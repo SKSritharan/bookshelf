@@ -9,7 +9,7 @@ Route::post('/register', [API\AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [API\AuthController::class, 'logout']);
-    Route::post('/refresh', [API\AuthController::class, 'refresh']);
+    Route::get('/refresh', [API\AuthController::class, 'refresh']);
     Route::get('/user', [API\AuthController::class, 'user']);
 
     Route::prefix('books')->group(function () {

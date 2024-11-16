@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\NewUserRegistrationNotify;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -9,6 +10,28 @@ use Illuminate\Http\Request;
 class AuthController extends Controller
 {
     //todo: register
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|confirmed',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+
+        $newUserRegisterNotify = new NewUserRegistrationNotify();
+        $newUserRegisterNotify->sendNotification($user);
+
+        return response()->json([
+            'message' => 'User created successfully',
+            'user' => $user,
+        ]);
+    }
 
     public function login(Request $request)
     {
@@ -37,7 +60,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function refresh(Request $request)
+    public function refresh()
     {
         $token = auth()->user()->createToken('authToken')->plainTextToken;
 
@@ -47,7 +70,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function user(Request $request)
+    public function user()
     {
         return response()->json([
             'user' => auth()->user(),
