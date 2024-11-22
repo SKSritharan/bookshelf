@@ -1,26 +1,89 @@
 <template>
-    <div class="bg-white">
-        <div class="relative isolate px-6 pt-14 lg:px-8">
-            <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
-                <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" />
-            </div>
-            <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
-                <div class="text-center">
-                    <h1 class="text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-7xl">Data to enrich your online business</h1>
-                    <p class="mt-8 text-pretty text-lg font-medium text-gray-500 sm:text-xl/8">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat.</p>
-                    <div class="mt-10 flex items-center justify-center gap-x-6">
-                        <a href="#" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Login</a>
-                        <a href="#" class="text-sm/6 font-semibold text-gray-900">Register <span aria-hidden="true">→</span></a>
-                    </div>
-                </div>
-            </div>
-            <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
-                <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" />
-            </div>
+    <div class="w-screen h-screen mx-auto p-4 bg-gray-50">
+        <h1 class="text-3xl font-bold mb-4 text-center">Books</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card
+                v-for="book in booksData"
+                :key="book.id"
+                class="bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow"
+            >
+                <img
+                    v-if="book.cover"
+                    :src="book.cover"
+                    alt="Book Cover"
+                    class="rounded-md mb-4 w-full h-48 object-cover"
+                />
+                <CardHeader>
+                    <CardTitle>{{ book.title }}</CardTitle>
+                    <CardDescription>By {{ book.author?.name || 'Unknown' }}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm text-gray-700">{{ book.description || 'No description available.' }}</p>
+                    <p class="mt-2 text-xs text-gray-500">
+                        <strong>Language:</strong> {{ book.language || 'N/A' }} |
+                        <strong>ISBN:</strong> {{ book.isbn || 'N/A' }}
+                    </p>
+                </CardContent>
+                <CardFooter v-if="book.category" class="mt-4 flex justify-between items-center">
+                    <Badge variant="outline">{{ book.category?.name }}</Badge>
+                    <Button variant="secondary" size="sm">View More</Button>
+                </CardFooter>
+            </Card>
+            <div ref="last" class="-translate-y-32"></div>
         </div>
     </div>
 </template>
 
 <script setup>
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+    CardFooter,
+} from "@/shadcn/ui/card";
+import {Button} from "@/shadcn/ui/button";
+import {Badge} from "@/shadcn/ui/badge";
+import {CardDescription} from "@/shadcn/ui/card/index.js";
+import {useIntersectionObserver} from '@vueuse/core';
+import axios from 'axios';
+import {ref, reactive} from 'vue';
 
+// Props definition
+const props = defineProps({
+    books: {
+        type: Object,
+        required: true,
+    },
+});
+
+// State management for books data
+const booksData = reactive([...props.books.data]);
+const meta = reactive({...props.books.meta});
+
+// Reference for the last element
+const last = ref(null);
+
+// Intersection observer to fetch more books
+const {stop} = useIntersectionObserver(last, ([{isIntersecting}]) => {
+    if (!isIntersecting || !meta.next_cursor) {
+        return;
+    }
+
+    fetchBooks();
+});
+
+// Function to fetch more books
+const fetchBooks = async () => {
+    try {
+        const response = await axios.get(`${meta.path}?cursor=${meta.next_cursor}`);
+        booksData.push(...response.data.data);
+        Object.assign(meta, response.data.meta);
+
+        // Stop observing if there's no next cursor
+        if (!meta.next_cursor) stop();
+    } catch (error) {
+        console.error("Error fetching books:", error);
+    }
+};
 </script>
